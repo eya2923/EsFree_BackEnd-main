@@ -22,10 +22,10 @@ public class AuthController {
     public ResponseEntity<ReqRes> signIn(@RequestBody ReqRes signInRequest){
         return ResponseEntity.ok(authService.signIn(signInRequest));
     }
-    @PostMapping("/refresh")
-    public ResponseEntity<ReqRes> refreshToken(@RequestBody ReqRes refreshTokenRequest){
-        return ResponseEntity.ok(authService.refreshToken(refreshTokenRequest));
-    }
+   // @PostMapping("/refresh")
+   // public ResponseEntity<ReqRes> refreshToken(@RequestBody ReqRes refreshTokenRequest){
+     //   return ResponseEntity.ok(authService.refreshToken(refreshTokenRequest));
+   // }
 
 
     @PostMapping("/forgotPassword")
