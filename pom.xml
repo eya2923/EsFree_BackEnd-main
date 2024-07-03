@@ -117,7 +117,7 @@
         <dependency>
             <groupId>com.stripe</groupId>
             <artifactId>stripe-java</artifactId>
-            <version>21.11.0</version> <!-- Use the latest version -->
+            <version>21.15.0</version> <!-- Use the latest version -->
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
