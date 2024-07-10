@@ -14,7 +14,11 @@ stages:
         steps:
           - checkout: self
 
-         
+          # Step 1: Install JDK 17
+          - script: 
+              java -version
+            displayName: 'Install JDK 17'
+
           # Step 2: Build the Spring Boot application
           - script: |
               mvn clean package -DskipTests
