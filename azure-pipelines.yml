@@ -28,5 +28,5 @@ stages:
               containerRegistry: 'dockerhub'  # Remplacez par le nom de votre connexion de service Docker Hub
               repository: 'brahmieya/stageback'  # Remplacez par le nom de votre repository Docker Hub
               command: 'push'
-              tags: 'brahmieya/stageback:$(Build.BuildId)' 
+              tags: '$(Build.BuildId)' 
                 
