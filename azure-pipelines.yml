@@ -1,7 +1,7 @@
 pr: none # Pour les tests manuels seulement
 
 pool:
-  vmImage: 'ubuntu-latest'  # Assurez-vous que l'image de l'agent supporte JDK 17 et Maven
+  name: default  # Assurez-vous que l'image de l'agent supporte JDK 17 et Maven
 
 stages:
   - stage: build_and_dockerize
