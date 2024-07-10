@@ -1,9 +1,7 @@
-
-
-pr: none # pour test, uniquement pour exécutions manuelles
+pr: none # Pour les tests manuels seulement
 
 pool:
-  name: default
+  vmImage: 'ubuntu-latest'  # Assurez-vous que l'image de l'agent supporte JDK 17 et Maven
 
 stages:
   - stage: build_and_dockerize
@@ -14,12 +12,13 @@ stages:
         steps:
           - checkout: self
 
-          # Step 1: Install JDK 17
+          # Step 1: Vérifier l'installation de JDK 17
           - script: 
               java -version
-            displayName: 'Install JDK 17'
+              javac -version  # Assurez-vous que le compilateur javac est également disponible
+            displayName: 'Verify JDK 17 Installation'
 
-          # Step 2: Build the Spring Boot application
+          # Step 2: Build the Spring Boot application with Maven
           - script: |
               mvn clean package -DskipTests
             displayName: 'Build Spring Boot Application'
