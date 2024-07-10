@@ -1,0 +1,14 @@
+pr: none # for test for manual run only
+
+pool:
+  name: default
+
+stages:
+  - stage: build_docker_image
+    jobs:
+      - job: build_image
+        displayName: 'Build Docker Image'
+        steps:
+          - script: |
+              docker build -t myimageback:latest .
+            displayName: 'Build Docker Image'
