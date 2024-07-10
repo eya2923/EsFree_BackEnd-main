@@ -12,16 +12,22 @@ stages:
     jobs:
       - job: build_and_dockerize
         displayName: 'Build and Dockerize Application'
-        container: maven:3.8.6-openjdk-11
         steps:
           - checkout: self
 
-          # Step 1: Build the Spring Boot application
+          # Step 1: Install JDK 17
+          - task: UsePythonVersion@0
+            inputs:
+              versionSpec: '17.x'
+              addToPath: true
+            displayName: 'Install JDK 17'
+
+          # Step 2: Build the Spring Boot application
           - script: |
               mvn clean package -DskipTests
             displayName: 'Build Spring Boot Application'
 
-          # Step 2: Build Docker image
+          # Step 3: Build Docker image
           - script: |
               docker build -t my-spring-boot-app:$(Build.BuildId) .
             displayName: 'Build Docker Image'
