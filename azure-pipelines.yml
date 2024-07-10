@@ -23,3 +23,10 @@ stages:
           - script: |
               docker build -t my-spring-boot-app:$(Build.BuildId) .
             displayName: 'Build Docker Image'
+          - task: Docker@2
+            inputs:
+              containerRegistry: 'dockerhub'  # Replace with your Docker Hub service connection name
+              repository: 'brahmieya/stageback'  # Replace with your Docker Hub repository name
+              command: 'push'
+              tags: |
+                $(Build.BuildId)  # Optionally, you can tag your Docker image
