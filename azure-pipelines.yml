@@ -1,10 +1,12 @@
-
+trigger:
+  branches:
+    include:
+      - master
 
 pr: none # pour test, uniquement pour exécutions manuelles
 
 pool:
-  name: default
- 
+  vmImage: 'ubuntu-latest'
 
 stages:
   - stage: build_and_dockerize
@@ -16,10 +18,10 @@ stages:
           - checkout: self
 
           # Step 1: Install JDK 17
-          - task: UsePythonVersion@0
-            inputs:
-              versionSpec: '17.x'
-              addToPath: true
+          - script: |
+              sudo apt-get update
+              sudo apt-get install -y openjdk-17-jdk
+              java -version
             displayName: 'Install JDK 17'
 
           # Step 2: Build the Spring Boot application
