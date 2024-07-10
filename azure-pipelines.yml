@@ -18,10 +18,6 @@ stages:
               javac -version  # Assurez-vous que le compilateur javac est également disponible
             displayName: 'Verify JDK 17 Installation'
 
-          # Step 2: Build the Spring Boot application with Maven
-          - script: |
-              mvn clean package -DskipTests
-            displayName: 'Build Spring Boot Application'
 
           # Step 3: Build Docker image
           - script: |
