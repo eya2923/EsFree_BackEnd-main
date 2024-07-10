@@ -22,11 +22,11 @@ stages:
           # Step 3: Build Docker image
           - script: |
               docker build -t brahmieya/stageback:$(Build.BuildId) .
-            displayName: 'Build Docker Image'
+            displayName: 'Build Docker Image'# Step 4: Push Docker image to Docker Hub
           - task: Docker@2
             inputs:
-              containerRegistry: 'dockerhub'  # Replace with your Docker Hub service connection name
-              repository: 'brahmieya/stageback'  # Replace with your Docker Hub repository name
+              containerRegistry: 'dockerhub'  # Remplacez par le nom de votre connexion de service Docker Hub
+              repository: 'brahmieya/stageback'  # Remplacez par le nom de votre repository Docker Hub
               command: 'push'
-              tags: |
-                brahmieya/stageback:$(Build.BuildId)  # Optionally, you can tag your Docker image
+              tags: 'brahmieya/stageback:$(Build.BuildId)' 
+                
