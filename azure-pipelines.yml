@@ -29,4 +29,4 @@ stages:
               repository: 'brahmieya/stageback'  # Replace with your Docker Hub repository name
               command: 'push'
               tags: |
-                $(Build.BuildId)  # Optionally, you can tag your Docker image
+                my-spring-boot-app:$(Build.BuildId)  # Optionally, you can tag your Docker image
