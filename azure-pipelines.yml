@@ -1,14 +1,28 @@
-pr: none # for test for manual run only
+
+
+pr: none # pour test, uniquement pour exécutions manuelles
 
 pool:
   name: default
 
 stages:
-  - stage: build_docker_image
+  - stage: build_and_dockerize
+    displayName: 'Build and Dockerize Spring Boot Application'
     jobs:
-      - job: build_image
-        displayName: 'Build Docker Image'
+      - job: build_and_dockerize
+        displayName: 'Build and Dockerize Application'
         steps:
+          - checkout: self
+
+          # Step 1: Build the Spring Boot application
+          - task: Maven@3
+            inputs:
+              mavenPomFile: 'pom.xml'
+              goals: 'clean package'
+              options: '-DskipTests'
+            displayName: 'Build Spring Boot Application'
+
+          # Step 2: Build Docker image
           - script: |
-              docker build -t myimageback:latest .
+              docker build -t my-spring-boot-app:$(Build.BuildId) .
             displayName: 'Build Docker Image'
