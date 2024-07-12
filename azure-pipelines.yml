@@ -1,0 +1,32 @@
+pr: none # Pour les tests manuels seulement
+
+pool:
+  name: default  # Assurez-vous que l'image de l'agent supporte JDK 17 et Maven
+
+stages:
+  - stage: build_and_dockerize
+    displayName: 'Build and Dockerize Spring Boot Application'
+    jobs:
+      - job: build_and_dockerize
+        displayName: 'Build and Dockerize Application'
+        steps:
+          - checkout: self
+
+          # Step 1: Vérifier l'installation de JDK 17
+          - script: 
+              java -version
+              javac -version  # Assurez-vous que le compilateur javac est également disponible
+            displayName: 'Verify JDK 17 Installation'
+
+
+          # Step 3: Build Docker image
+          - script: |
+              docker build -t brahmieya/stageback:$(Build.BuildId) .
+            displayName: 'Build Docker Image'
+          - task: Docker@2
+            inputs:
+              containerRegistry: 'dockerhub'  # Replace with your Docker Hub service connection name
+              repository: 'brahmieya/stageback'  # Replace with your Docker Hub repository name
+              command: 'push'
+              tags: |
+                brahmieya/stageback:$(Build.BuildId)  # Optionally, you can tag your Docker image
