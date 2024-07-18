@@ -14,27 +14,17 @@ stages:
           - checkout: self
             fetchDepth: 0
 
-
-          - task: SonarCloudPrepare@2
-            inputs:
-              SonarCloud: 'sonarcloud'
-              organization: 'projetdevsecops'
-              scannerMode: 'CLI'
-              configMode: 'manual'
-              cliProjectKey: 'hadillabidi_DevSecOps'
-              cliProjectName: 'DevSecOps'
-              cliSources: '.'
-              extraProperties: |
-                sonar.projectKey=hadillabidi_DevSecOps
-                sonar.organization=projetdevsecops
-
           - script: |
-              mvn install
+              echo "JAVA_HOME: $JAVA_HOME"
               mvn -version
-            displayName: 'Verify Maven version'
+            displayName: 'Verify Maven and JDK version'
 
           - script: |
-              mvn clean install
+              mvn install --quiet --batch-mode
+            displayName: 'Install Maven dependencies'
+
+          - script: |
+              mvn clean install --quiet --batch-mode
             displayName: 'Build backend Application with Maven'
 
           - task: SonarCloudAnalyze@2
