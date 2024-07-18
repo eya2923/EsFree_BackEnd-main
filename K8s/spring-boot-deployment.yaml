@@ -11,7 +11,18 @@ spec:
     metadata:
       labels:
         app: your-application
-    spec:
+    spec:trigger:
+  - main
+
+pool:
+  name: default
+
+steps:
+  - task: SnykSecurityScan@1
+    inputs:
+      serviceConnectionEndpoint: 'snyktest'
+      testType: 'code'
+      failOnIssues: false
       containers:
         - name: your-application
           image: $(DOCKERHUB_REPOSITORY):$(Build.BuildId)
