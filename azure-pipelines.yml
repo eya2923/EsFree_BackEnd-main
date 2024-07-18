@@ -1,0 +1,50 @@
+trigger:
+  - main
+
+pool:
+  name: default
+
+stages:
+  - stage: analyze_build_and_sonarcloud
+    displayName: 'Prepare, Build, and Analyze with SonarCloud'
+    jobs:
+      - job: prepare_build_analyze
+        displayName: 'Prepare, Build, and Analyze'
+        steps:
+          - checkout: self
+            fetchDepth: 0
+
+          - task: UseJavaVersion@1
+            inputs:
+              versionSpec: '17.x'
+              architecture: 'x64'
+            displayName: 'Set up JDK 17'
+
+          - task: SonarCloudPrepare@2
+            inputs:
+              SonarCloud: 'sonarcloud'
+              organization: 'projetdevsecops'
+              scannerMode: 'CLI'
+              configMode: 'manual'
+              cliProjectKey: 'hadillabidi_DevSecOps'
+              cliProjectName: 'DevSecOps'
+              cliSources: '.'
+              extraProperties: |
+                sonar.projectKey=hadillabidi_DevSecOps
+                sonar.organization=projetdevsecops
+
+          - script: |
+              mvn -version
+            displayName: 'Verify Maven version'
+
+          - script: |
+              mvn clean install
+            displayName: 'Build backend Application with Maven'
+
+          - task: SonarCloudAnalyze@2
+            inputs:
+              jdkVersion: 'JAVA_HOME_17_X64'
+
+          - task: SonarQubePublish@6
+            inputs:
+              pollingTimeoutSec: '300'
