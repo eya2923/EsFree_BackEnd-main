@@ -29,6 +29,7 @@ stages:
                 sonar.organization=projetdevsecops
 
           - script: |
+              mvn install
               mvn -version
             displayName: 'Verify Maven version'
 
