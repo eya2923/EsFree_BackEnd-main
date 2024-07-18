@@ -1,37 +1,25 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: your-application
+  name: spring-application
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: your-application
+      app: spring-application
   template:
     metadata:
       labels:
-        app: your-application
-    spec:trigger:
-  - main
-
-pool:
-  name: default
-
-steps:
-  - task: SnykSecurityScan@1
-    inputs:
-      serviceConnectionEndpoint: 'snyktest'
-      testType: 'code'
-      failOnIssues: false
+        app: spring-application
+    spec:
       containers:
-        - name: your-application
-          image: $(DOCKERHUB_REPOSITORY):$(Build.BuildId)
+        - name: spring-application
+          image: brahmieya/stageback:$(Build.BuildId)
           ports:
             - containerPort: 8082
           env:
             - name: SPRING_DATASOURCE_URL
-              value: "jdbc:mysql://mysql:3306/virtiversefinal?createDatabaseIfNotExist=true&useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC
-
+              value: "jdbc:mysql://mysql:3306/virtiversefinal?createDatabaseIfNotExist=true&useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC"
             - name: SPRING_DATASOURCE_USERNAME
               value: "root"
             - name: SPRING_DATASOURCE_PASSWORD
