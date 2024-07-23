@@ -20,16 +20,16 @@ jobs:
       targetType: 'inline'
       script: |
         mkdir -p owaspzap
-        docker run --rm -v $(pwd)/owaspzap:/zap/wrk/:rw ghcr.io/zaproxy/zaproxy:stable zap-baseline.py -t http://172.213.198.195 -J zap_report.json -r zap_report.html
+        docker run --rm -v $(pwd)/owaspzap:/zap/wrk/:rw ghcr.io/zaproxy/zaproxy:stable zap-baseline.py -t http://172.213.198.195 -J zap_report.json -r zap_report.html -w zap_report.txt
 
   - task: Bash@3
-    displayName: 'Ensure report.json exists'
+    displayName: 'Ensure report.txt exists'
     inputs:
       targetType: 'inline'
       script: |
         mkdir -p owaspzap
-        if [ ! -f owaspzap/zap_report.json ]; then
-          touch owaspzap/zap_report.json
+        if [ ! -f owaspzap/zap_report.txt ]; then
+          touch owaspzap/zap_report.txt
         fi
 
   - task: CopyFiles@2
@@ -41,7 +41,7 @@ jobs:
   - task: PublishPipelineArtifact@1
     condition: succeededOrFailed()
     inputs:
-      targetPath: '$(Pipeline.Workspace)/zap_report.json'
+      targetPath: '$(Pipeline.Workspace)/zap_report.txt'
       artifact: 'owasp_zap_report'
       publishLocation: 'pipeline'
     displayName: 'Publish ZAP Report'
