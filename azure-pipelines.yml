@@ -8,11 +8,17 @@ jobs:
 - job: run_dast_scan
   displayName: Run DAST Scan
   steps:
+  - task: Docker@2
+    inputs:
+      command: login
+      containerRegistry: 'dockerhub' 
+      azureSubscriptionEndpoint: 'MyDockerServiceConnection'
+
   - task: owaspzap@1
     inputs:
       scantype: 'targetedScan'
       url: 'http://172.213.198.195' # replace with your staging URL here
-      dockerImage: 'owasp/zap2docker-stable:2.10.0' # Specify a known available version
+      dockerImage: 'owasp/zap2docker-stable:2.10.0' # Specify the known available version
     displayName: 'OWASP ZAP Scan'
   
   - task: CopyFiles@2
