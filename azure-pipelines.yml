@@ -1,36 +1,29 @@
 trigger:
-  - main
+- main
 
 pool:
   name: default
 
-stages:
-  - stage: analyze_build_and_sonarcloud
-    displayName: 'Prepare, Build, and Analyze with SonarCloud'
-    jobs:
-      - job: prepare_build_analyze
-        displayName: 'Prepare, Build, and Analyze'
-        steps:
-          - checkout: self
-            fetchDepth: 0
-
-          - script: |
-              echo "JAVA_HOME: $JAVA_HOME"
-              mvn -version
-            displayName: 'Verify Maven and JDK version'
-
-          - script: |
-              mvn install --quiet --batch-mode
-            displayName: 'Install Maven dependencies'
-
-          - script: |
-              mvn clean install --quiet --batch-mode
-            displayName: 'Build backend Application with Maven'
-
-          - task: SonarCloudAnalyze@2
-            inputs:
-              jdkVersion: 'JAVA_HOME_17_X64'
-
-          - task: SonarQubePublish@6
-            inputs:
-              pollingTimeoutSec: '300'
+jobs:
+- job: run_dast_scan
+  displayName: Run DAST Scan
+  steps:
+  - task: owaspzap@1
+    inputs:
+      scantype: 'targetedScan'
+      url: 'http://172.213.198.195' # replace with your staging URL here
+    displayName: 'OWASP ZAP Scan'
+  
+  - task: CopyFiles@2
+    condition: succeededOrFailed()
+    inputs:
+      SourceFolder: 'owaspzap/'
+      TargetFolder: '$(Pipeline.Workspace)'
+  
+  - task: PublishPipelineArtifact@1
+    condition: succeededOrFailed()
+    inputs:
+      targetPath: '$(Pipeline.Workspace)/report.json'
+      artifact: 'owasp_zap_report'
+      publishLocation: 'pipeline'
+    displayName: 'Publish ZAP Report'
