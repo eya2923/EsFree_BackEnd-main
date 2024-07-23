@@ -38,7 +38,7 @@ jobs:
   - task: PublishPipelineArtifact@1
     condition: succeededOrFailed()
     inputs:
-      targetPath: '$(Pipeline.Workspace)/owaspzap/report.json'
+      targetPath: '$(Pipeline.Workspace)/s/owaspzap/report.json'
       artifact: 'owasp_zap_report'
       publishLocation: 'pipeline'
     displayName: 'Publish ZAP Report'
