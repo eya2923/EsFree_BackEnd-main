@@ -12,6 +12,7 @@ jobs:
     inputs:
       scantype: 'targetedScan'
       url: 'http://172.213.198.195' # replace with your staging URL here
+      dockerImage: 'owasp/zap2docker-stable:2.10.0' # Specify a known available version
     displayName: 'OWASP ZAP Scan'
   
   - task: CopyFiles@2
