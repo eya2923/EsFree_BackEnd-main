@@ -21,6 +21,14 @@ jobs:
       dockerImage: 'ghcr.io/zaproxy/zaproxy:stable' # Specify the known available version
     displayName: 'OWASP ZAP Scan'
   
+  - task: Bash@3
+    displayName: 'Ensure report.json exists'
+    inputs:
+      targetType: 'inline'
+      script: |
+        mkdir -p owaspzap
+        touch owaspzap/report.json
+
   - task: CopyFiles@2
     condition: succeededOrFailed()
     inputs:
