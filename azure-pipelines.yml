@@ -1,36 +1,50 @@
 trigger:
-  - main
+- main
 
 pool:
   name: default
 
-stages:
-  - stage: analyze_build_and_sonarcloud
-    displayName: 'Prepare, Build, and Analyze with SonarCloud'
-    jobs:
-      - job: prepare_build_analyze
-        displayName: 'Prepare, Build, and Analyze'
-        steps:
-          - checkout: self
-            fetchDepth: 0
+jobs:
+- job: run_dast_scan
+  displayName: Run DAST Scan
+  steps:
+  - task: Docker@2
+    inputs:
+      command: login
+      containerRegistry: 'dockerhub' 
+      azureSubscriptionEndpoint: 'MyDockerServiceConnection'
 
-          - script: |
-              echo "JAVA_HOME: $JAVA_HOME"
-              mvn -version
-            displayName: 'Verify Maven and JDK version'
+  - task: Bash@3
+    displayName: 'Run OWASP ZAP Scan'
+    inputs:
+      targetType: 'inline'
+      script: |
+        echo "Starting OWASP ZAP Scan"
+        mkdir -p $(pwd)/owaspzap
+        echo "Created owaspzap directory"
+        docker run --rm -v $(pwd)/owaspzap:/zap/wrk/:rw ghcr.io/zaproxy/zaproxy:stable zap-baseline.py -t http://172.213.198.195 -r /zap/wrk/zap_report.html 2> /dev/null; (($? == 2)) && echo 'Done' >&2
+        echo "Finished OWASP ZAP Scan"
 
-          - script: |
-              mvn install --quiet --batch-mode
-            displayName: 'Install Maven dependencies'
+  - task: Bash@3
+    displayName: 'Ensure report files exist'
+    inputs:
+      targetType: 'inline'
+      script: |
+        mkdir -p owaspzap
+        if [ ! -f owaspzap/zap_report.html ]; then
+          touch owaspzap/zap_report.html
+        fi
 
-          - script: |
-              mvn clean install --quiet --batch-mode
-            displayName: 'Build backend Application with Maven'
+  - task: CopyFiles@2
+    condition: succeededOrFailed()
+    inputs:
+      SourceFolder: 'owaspzap/'
+      TargetFolder: '$(Pipeline.Workspace)'
 
-          - task: SonarCloudAnalyze@2
-            inputs:
-              jdkVersion: 'JAVA_HOME_17_X64'
-
-          - task: SonarQubePublish@6
-            inputs:
-              pollingTimeoutSec: '300'
+  - task: PublishPipelineArtifact@1
+    condition: succeededOrFailed()
+    inputs:
+      targetPath: '$(Pipeline.Workspace)/zap_report.html'
+      artifact: 'owasp_zap_report_html'
+      publishLocation: 'pipeline'
+    displayName: 'Publish ZAP HTML Report'
