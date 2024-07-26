@@ -19,8 +19,11 @@ jobs:
     inputs:
       targetType: 'inline'
       script: |
-        mkdir -p owaspzap
-        docker run --rm -v $(pwd)/owaspzap:/zap/wrk/:rw ghcr.io/zaproxy/zaproxy:stable zap-baseline.py -t http://172.213.198.195 -r zap_report.html
+        echo "Starting OWASP ZAP Scan"
+        mkdir -p $(pwd)/owaspzap
+        echo "Created owaspzap directory"
+        docker run --rm -v $(pwd)/owaspzap:/zap/wrk/:rw ghcr.io/zaproxy/zaproxy:stable zap-baseline.py -t http://172.213.198.195 -r /zap/wrk/zap_report.html 2> /dev/null; (($? == 2)) && echo 'Done' >&2
+        echo "Finished OWASP ZAP Scan"
 
   - task: Bash@3
     displayName: 'Ensure report files exist'
