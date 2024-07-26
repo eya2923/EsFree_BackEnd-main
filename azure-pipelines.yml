@@ -28,17 +28,15 @@ jobs:
       targetType: 'inline'
       script: |
         mkdir -p owaspzap
-         if [ ! -f owaspzap/zap_report.txt ]; then
-          touch owaspzap/zap_report.txt
-        
+        if [ ! -f owaspzap/zap_report.html ]; then
+          touch owaspzap/zap_report.html
+        fi
 
   - task: CopyFiles@2
     condition: succeededOrFailed()
     inputs:
       SourceFolder: 'owaspzap/'
       TargetFolder: '$(Pipeline.Workspace)'
-
-  
 
   - task: PublishPipelineArtifact@1
     condition: succeededOrFailed()
@@ -47,5 +45,3 @@ jobs:
       artifact: 'owasp_zap_report_html'
       publishLocation: 'pipeline'
     displayName: 'Publish ZAP HTML Report'
-
-
