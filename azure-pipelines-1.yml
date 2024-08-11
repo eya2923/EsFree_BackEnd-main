@@ -50,9 +50,10 @@ stages:
 
           # Step 4: Scan MySQL image with Trivy
           - script: |
-              docker pull aquasec/trivy:latest
-              docker run --rm aquasec/trivy:latest image mysql:latest > $(System.DefaultWorkingDirectory)/result.txt
-            displayName: 'Scan MySQL image with Trivy'
+             docker pull aquasec/trivy:latest
+             docker run --rm aquasec/trivy:latest image --timeout 10m mysql:latest > $(System.DefaultWorkingDirectory)/résultat.txt
+             displayName: 'Scan MySQL image with Trivy'
+
 
           # Step 5: Publish Trivy report as Pipeline Artifact
           - task: PublishPipelineArtifact@1
