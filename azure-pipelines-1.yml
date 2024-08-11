@@ -1,8 +1,11 @@
 trigger:
-- main
+  branches:
+    include:
+      - main
 
 pool:
- name: default
+  name: default
+
 stages:
   - stage: test_with_snyk_and_dependency_check
     displayName: 'Test with Snyk and Dependency Check'
@@ -12,17 +15,12 @@ stages:
         steps:
           - task: SnykSecurityScan@1
             inputs:
-              serviceConnectionEndpoint: 'snyktest'
+              serviceConnectionEndpoint: 'snykconx'
               testType: 'code'
               failOnIssues: false
 
-          - task: dependency-check-build-task@6
-            inputs:
-              projectName: 'back'
-              scanPath: '.'
-              format: 'HTML'
-              uploadReports: true 
-stages:
+         
+
   - stage: build_and_dockerize
     displayName: 'Build and Dockerize Spring Boot Application'
     jobs:
@@ -31,38 +29,46 @@ stages:
         steps:
           - checkout: self
 
-          # Step 1: Vérifier l'installation de JDK 17
-          - script: 
+          # Step 1: Verify JDK 17 Installation
+          - script: |
               java -version
-              javac -version  # Assurez-vous que le compilateur javac est également disponible
+              javac -version  # Ensure javac compiler is available
             displayName: 'Verify JDK 17 Installation'
 
-
-          # Step 3: Build Docker image
+          # Step 2: Build Docker image
           - script: |
               docker build -t brahmieya/stageback:$(Build.BuildId) .
-            displayName: 'Build Docker Image'# Step 4: Push Docker image to Docker Hub
+            displayName: 'Build Docker Image'
+
+          # Step 3: Push Docker image to Docker Hub
           - task: Docker@2
             inputs:
-              containerRegistry: 'duckerhub'  # Remplacez par le nom de votre connexion de service Docker Hub
-              repository: 'brahmieya/stageback'  # Remplacez par le nom de votre repository Docker Hub
+              containerRegistry: 'duckerhub'  # Replace with your Docker Hub service connection name
+              repository: 'brahmieya/stageback'  # Replace with your Docker Hub repository name
               command: 'push'
-              tags: '$(Build.BuildId)' 
-steps:
+              tags: '$(Build.BuildId)'
 
+          # Step 4: Scan MySQL image with Trivy
+          - script: |
+              docker pull aquasec/trivy:latest
+              docker run --rm aquasec/trivy:latest image mysql:latest > $(System.DefaultWorkingDirectory)/result.txt
+            displayName: 'Scan MySQL image with Trivy'
 
-- script: |
-    docker pull aquasec/trivy:latest
-    docker run --rm aquasec/trivy:latest image mysql:latest > $(System.DefaultWorkingDirectory)/résultat.txt
-  displayName: 'Scan MySQL image with Trivy'
+          # Step 5: Publish Trivy report as Pipeline Artifact
+          - task: PublishPipelineArtifact@1
+            inputs:
+              targetPath: '$(System.DefaultWorkingDirectory)/result.txt'
+              artifactName: 'trivy-report'
+              publishLocation: 'pipeline'
 
-- task: PublishPipelineArtifact@1
-  inputs:
-    targetPath: '$(System.DefaultWorkingDirectory)/résultat.txt'
-    artifactName: 'trivy-report'
-    publishLocation: 'pipeline'
-  - task: KubernetesManifest@1
-    inputs:
-      action: 'deploy'
-      connectionType: 'kubernetesServiceConnection'
-      kubernetesServiceConnection: 'conx_cluster'
+  - stage: deploy_to_kubernetes
+    displayName: 'Deploy to Kubernetes'
+    jobs:
+      - job: deploy
+        displayName: 'Deploy Application to Kubernetes'
+        steps:
+          - task: KubernetesManifest@1
+            inputs:
+              action: 'deploy'
+              connectionType: 'kubernetesServiceConnection'
+              kubernetesServiceConnection: 'conx_cluster'
