@@ -10,10 +10,9 @@ pool:
  name: default
 
 steps:
-- script: echo Hello, world!
-  displayName: 'Run a one-line script'
 
 - script: |
-    echo Add other tasks to build, test, and deploy your project.
-    echo See https://aka.ms/yaml
-  displayName: 'Run a multi-line script'
+    docker pull aquasec/trivy:latest
+    docker run --rm aquasec/trivy:latest image --timeout 10m mysql:latest > $(System.DefaultWorkingDirectory)/résultat.txt
+  displayName: 'Scan MySQL image with Trivy'
+
