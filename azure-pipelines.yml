@@ -13,7 +13,7 @@ stages:
         steps:
           - task: SnykSecurityScan@1
             inputs:
-              serviceConnectionEndpoint: 'snyktest'
+              serviceConnectionEndpoint: 'snykconx'
               testType: 'code'
               failOnIssues: false
 
@@ -46,7 +46,7 @@ stages:
           # Step 3: Push Docker image to Docker Hub
           - task: Docker@2
             inputs:
-              containerRegistry: 'dockerhub'
+              containerRegistry: 'duckerhub'
               repository: 'brahmieya/stageback'
               command: 'push'
               tags: '$(Build.BuildId)'
@@ -59,7 +59,7 @@ stages:
         steps:
           - script: |
               docker pull aquasec/trivy:latest
-              docker run --rm aquasec/trivy:latest image mysql:latest > $(System.DefaultWorkingDirectory)/result.txt
+              docker run --rm aquasec/trivy:latest --timeout 10m  image mysql:latest > $(System.DefaultWorkingDirectory)/result.txt
             displayName: 'Scan MySQL image with Trivy'
 
           - task: PublishPipelineArtifact@1
