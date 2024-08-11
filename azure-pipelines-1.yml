@@ -1,0 +1,68 @@
+trigger:
+- main
+
+pool:
+ name: default
+stages:
+  - stage: test_with_snyk_and_dependency_check
+    displayName: 'Test with Snyk and Dependency Check'
+    jobs:
+      - job: tests
+        displayName: 'Run Security and Dependency Tests'
+        steps:
+          - task: SnykSecurityScan@1
+            inputs:
+              serviceConnectionEndpoint: 'snyktest'
+              testType: 'code'
+              failOnIssues: false
+
+          - task: dependency-check-build-task@6
+            inputs:
+              projectName: 'back'
+              scanPath: '.'
+              format: 'HTML'
+              uploadReports: true 
+stages:
+  - stage: build_and_dockerize
+    displayName: 'Build and Dockerize Spring Boot Application'
+    jobs:
+      - job: build_and_dockerize
+        displayName: 'Build and Dockerize Application'
+        steps:
+          - checkout: self
+
+          # Step 1: Vérifier l'installation de JDK 17
+          - script: 
+              java -version
+              javac -version  # Assurez-vous que le compilateur javac est également disponible
+            displayName: 'Verify JDK 17 Installation'
+
+
+          # Step 3: Build Docker image
+          - script: |
+              docker build -t brahmieya/stageback:$(Build.BuildId) .
+            displayName: 'Build Docker Image'# Step 4: Push Docker image to Docker Hub
+          - task: Docker@2
+            inputs:
+              containerRegistry: 'duckerhub'  # Remplacez par le nom de votre connexion de service Docker Hub
+              repository: 'brahmieya/stageback'  # Remplacez par le nom de votre repository Docker Hub
+              command: 'push'
+              tags: '$(Build.BuildId)' 
+steps:
+
+
+- script: |
+    docker pull aquasec/trivy:latest
+    docker run --rm aquasec/trivy:latest image mysql:latest > $(System.DefaultWorkingDirectory)/résultat.txt
+  displayName: 'Scan MySQL image with Trivy'
+
+- task: PublishPipelineArtifact@1
+  inputs:
+    targetPath: '$(System.DefaultWorkingDirectory)/résultat.txt'
+    artifactName: 'trivy-report'
+    publishLocation: 'pipeline'
+  - task: KubernetesManifest@1
+    inputs:
+      action: 'deploy'
+      connectionType: 'kubernetesServiceConnection'
+      kubernetesServiceConnection: 'conx_cluster'
