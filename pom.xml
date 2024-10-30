@@ -189,11 +189,11 @@
 
     <distributionManagement>
         <repository>
-            <id>maven-releases</id>
+            <id>deploymentRepo</id>
             <url>http://192.168.162.222:8081/repository/maven-releases/</url>
         </repository>
         <snapshotRepository>
-            <id>maven-snapshots</id>
+            <id>deploymentRepo</id>
             <url>http://192.168.162.222:8081/repository/maven-snapshots/</url>
         </snapshotRepository>
     </distributionManagement>
